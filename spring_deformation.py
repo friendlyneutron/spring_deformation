@@ -39,7 +39,7 @@ def spring_deformation (V, g, legs, M, l, y, d, D, N, stress_critical, c, T_max,
     coordinate = [] #Значения расстояния крепления пружины от поверхности.
     x_spring = [] #Значения сжатия пружины.
     F_spring = [] #Значения силы Гука пружины.
-    E_spring = [] #Значения потенциальной энергии пружины.
+    ground_force = [] #Значения силы реакции опоры поверхности.
     down_acceleration = [] #Значения максимального ускорения при сжатии пружины.
     T_spring_1 = [] #Всё это - значения температуры сегментов пружины, отсчёт начинается с поверхности.
     T_spring_2 = []
@@ -77,7 +77,7 @@ def spring_deformation (V, g, legs, M, l, y, d, D, N, stress_critical, c, T_max,
             V -= g * dt
             V_spring.append(V)
             F_spring.append(0)
-            E_spring.append(0)
+            ground_force.append(0)
             x_spring.append(0)
             stress_spring_1.append(4 * m_1 * g / (pi * d_1**2))
             stress_spring_2.append(4 * m_2 * g / (pi * d_2**2))
@@ -113,11 +113,11 @@ def spring_deformation (V, g, legs, M, l, y, d, D, N, stress_critical, c, T_max,
                 k_4 = (G * d_4**4) / (4 * N * D**3)
                 k = k_1 * k_2 * k_3 * k_4 / (k_2 * k_3 * k_4 + k_1 * k_3 * k_4 + k_1 * k_2 * k_4 + k_1 * k_2 * k_3)
                 V += ((k * (l - y) + c * V**2) / M - g) * dt
+                N_ground = (1 + m / (2 * M)) * (k * (l - y) + c * V**2)
                 V_spring.append(V)
                 F_spring.append(k * (l - y))
-                E_spring.append((k * (l - y)**2) / 2)
+                ground_force.append(N_ground)
                 x_spring.append(l - y)
-                N_ground = (1 + m / (2 * M)) * (k * (l - y) + c * V**2)
                 stress_spring_1.append(4 * max(m_1 * g, k_1 * (l - y), c * V**2 * 0.25**2, N_ground) / (pi * d_1**2))
                 stress_spring_2.append(4 * max(m_2 * g, k_2 * (l - y), k_1 * (l - y), c * V**2 * 0.25**2, c * V**2 * 0.25) / (pi * d_2**2))
                 stress_spring_3.append(4 * max(m_3 * g, k_3 * (l - y), k_2 * (l - y), c * V**2 * 0.25, c * V**2 * 9 * 0.25**2) / (pi * d_3**2))
@@ -158,11 +158,14 @@ def spring_deformation (V, g, legs, M, l, y, d, D, N, stress_critical, c, T_max,
                 k_4 = (G * d_4**4) / (4 * N * D**3)
                 k = k_1 * k_2 * k_3 * k_4 / (k_2 * k_3 * k_4 + k_1 * k_3 * k_4 + k_1 * k_2 * k_4 + k_1 * k_2 * k_3)
                 V += ((k * (l - y) - c * V**2) / M - g) * dt
+                if (k * (l - y) - c * V**2) >= 0:
+                    N_ground = (1 + m / (2 * M)) * (k * (l - y) - c * V**2)
+                elif (k * (l - y) - c * V**2) < 0:
+                    N_ground = 0
                 V_spring.append(V)
                 F_spring.append(k * (l - y))
-                E_spring.append((k * (l - y)**2) / 2)
+                ground_force.append(N_ground)
                 x_spring.append(l - y)
-                N_ground = (1 + m / (2 * M)) * (k * (l - y) - c * V**2)
                 stress_spring_1.append(4 * max(m_1 * g, k_1 * (l - y), c * V**2 * 0.25**2, N_ground) / (pi * d_1**2))
                 stress_spring_2.append(4 * max(m_2 * g, k_2 * (l - y), k_1 * (l - y), c * V**2 * 0.25**2, c * V**2 * 0.25) / (pi * d_2**2))
                 stress_spring_3.append(4 * max(m_3 * g, k_3 * (l - y), k_2 * (l - y), c * V**2 * 0.25, c * V**2 * 9 * 0.25**2) / (pi * d_3**2))
@@ -203,11 +206,11 @@ def spring_deformation (V, g, legs, M, l, y, d, D, N, stress_critical, c, T_max,
                 k_4 = (G * d_4**4) / (4 * N * D**3)
                 k = k_1 * k_2 * k_3 * k_4 / (k_2 * k_3 * k_4 + k_1 * k_3 * k_4 + k_1 * k_2 * k_4 + k_1 * k_2 * k_3)
                 V += ((k * (l - y) + c * V**2) / M - g) * dt
+                N_ground = (1 + m / (2 * M)) * (k * (l - y) + c * V**2)
                 V_spring.append(V)
                 F_spring.append(k * (l - y))
-                E_spring.append((k * (l - y)**2) / 2)
+                ground_force.append(N_ground)
                 x_spring.append(l - y)
-                N_ground = (1 + m / (2 * M)) * (k * (l - y) + c * V**2)
                 stress_spring_1.append(4 * max(m_1 * g, k_1 * (l - y), c * V**2 * 0.25**2, N_ground) / (pi * d_1**2))
                 stress_spring_2.append(4 * max(m_2 * g, k_2 * (l - y), k_1 * (l - y), c * V**2 * 0.25**2, c * V**2 * 0.25) / (pi * d_2**2))
                 stress_spring_3.append(4 * max(m_3 * g, k_3 * (l - y), k_2 * (l - y), c * V**2 * 0.25, c * V**2 * 9 * 0.25**2) / (pi * d_3**2))
@@ -236,7 +239,7 @@ def spring_deformation (V, g, legs, M, l, y, d, D, N, stress_critical, c, T_max,
             V -= g * dt
             V_spring.append(V)
             F_spring.append(0)
-            E_spring.append(0)
+            ground_force.append(0)
             x_spring.append(0)
             stress_spring_1.append(4 * m_1 * g / (pi * d_1**2))
             stress_spring_2.append(4 * m_2 * g / (pi * d_2**2))
@@ -276,11 +279,11 @@ def spring_deformation (V, g, legs, M, l, y, d, D, N, stress_critical, c, T_max,
                 plt.grid()
                 plt.title('Зависимость координаты крепления пружины от времени.')
                 plt.subplot(3, 2, 2)
-                plt.plot(time_of_oscillation, E_spring, 'g')
+                plt.plot(time_of_oscillation, ground_force, 'brown')
                 plt.xlabel("с")
-                plt.ylabel("Дж")
+                plt.ylabel("Н")
                 plt.grid()
-                plt.title('Зависимость потенциальной энергии от времени.')
+                plt.title('Зависимость силы реакции поверхности от времени.')
                 plt.subplot(3, 2, 3)
                 plt.plot(time_of_oscillation, V_spring, 'gray')
                 plt.xlabel("с")
@@ -288,20 +291,20 @@ def spring_deformation (V, g, legs, M, l, y, d, D, N, stress_critical, c, T_max,
                 plt.grid()
                 plt.title("Зависимость скорости от времени.")
                 plt.subplot(3, 2, 4)
-                plt.plot(time_of_oscillation, T_spring_1, 'r')
-                plt.plot(time_of_oscillation, T_spring_2, 'orange')
-                plt.plot(time_of_oscillation, T_spring_3, 'yellow')
-                plt.plot(time_of_oscillation, T_spring_4, 'g')
+                plt.plot(time_of_oscillation, T_spring_1, 'palegreen')
+                plt.plot(time_of_oscillation, T_spring_2, 'lime')
+                plt.plot(time_of_oscillation, T_spring_3, 'limegreen')
+                plt.plot(time_of_oscillation, T_spring_4, 'green')
                 plt.legend(["first", "second", "third", "fourth"])
                 plt.xlabel("с")
                 plt.ylabel("К")
                 plt.grid()
                 plt.title("Зависимость температуры от времени.")
                 plt.subplot(3, 2, 5)
-                plt.plot(time_of_oscillation, k_1_spring, 'b')
-                plt.plot(time_of_oscillation, k_2_spring, 'brown')
-                plt.plot(time_of_oscillation, k_3_spring, 'black')
-                plt.plot(time_of_oscillation, k_4_spring, 'purple')
+                plt.plot(time_of_oscillation, k_1_spring, 'darkblue')
+                plt.plot(time_of_oscillation, k_2_spring, 'blue')
+                plt.plot(time_of_oscillation, k_3_spring, 'royalblue')
+                plt.plot(time_of_oscillation, k_4_spring, 'lightblue')
                 plt.legend(["first", "second", "third", "fourth"])
                 plt.xlabel("с")
                 plt.ylabel("Н/м")
@@ -309,9 +312,9 @@ def spring_deformation (V, g, legs, M, l, y, d, D, N, stress_critical, c, T_max,
                 plt.title("Зависимость жёсткости сегментов от времени.")
                 plt.subplot(3, 2, 6)
                 plt.plot(time_of_oscillation, stress_spring_1, 'r')
-                plt.plot(time_of_oscillation, stress_spring_2, 'orange')
-                plt.plot(time_of_oscillation, stress_spring_3, 'yellow')
-                plt.plot(time_of_oscillation, stress_spring_4, 'green')
+                plt.plot(time_of_oscillation, stress_spring_2, 'pink')
+                plt.plot(time_of_oscillation, stress_spring_3, 'orange')
+                plt.plot(time_of_oscillation, stress_spring_4, 'yellow')
                 plt.legend(["first", "second", "third", "fourth"])
                 plt.xlabel("с")
                 plt.ylabel("Па")
